@@ -134,3 +134,37 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     }
 }
+
+REST_FRAMEWORK = {
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+
+    'ROTATE_REFRESH_TOKENS': True,
+
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+
+# Fix for SQLite foreign key constraint issue
+# SQLite doesn't enforce foreign keys by default
+# This tells SQLite to enforce them properly on every connection
+from django.db.backends.signals import connection_created
+from django.dispatch import receiver
+
+@receiver(connection_created)
+def enable_sqlite_fk(sender, connection, **kwargs):
+    # only apply this fix for SQLite database
+    if connection.vendor == 'sqlite':
+        # PRAGMA is SQLite's way of setting configuration options
+        # foreign_keys = ON tells SQLite to enforce foreign key constraints
+        connection.cursor().execute('PRAGMA foreign_keys = ON;')
