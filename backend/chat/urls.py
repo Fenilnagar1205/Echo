@@ -2,7 +2,7 @@ from django.urls import path
 
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import RegisterView, LoginView, RoomListView, MessageListView
+from .views import RegisterView, LoginView, RoomListView, MessageListView,UserSearchView
 
 urlpatterns = [
     # auth routes
@@ -18,4 +18,6 @@ urlpatterns = [
     # messages route — <int:room_id> captures the room ID from URL
     # example: /api/rooms/3/messages/ → room_id = 3
     path('rooms/<int:room_id>/messages/', MessageListView.as_view(), name='messages'),
+
+    path('users/search/', UserSearchView.as_view(), name='user-search'),
 ]

@@ -151,3 +151,41 @@ class MessageListView(APIView):
         serializer = MessageSerializer(messages, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# User search view — find users by username to start new chat
+class UserSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        username = request.query_params.get('username', '')
+
+        if not username:
+            return Response(
+                {'error': 'username is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+        
+            user = User.objects.get(
+                username=username
+            )
+
+            if user == request.user:
+                return Response(
+                    {'error': 'You cannot chat with yourself'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            return Response(
+                UserSerializer(user).data,
+                status=status.HTTP_200_OK
+            )
+
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
